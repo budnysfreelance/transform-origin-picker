@@ -75,8 +75,7 @@ function showStage(name, width, height) {
   dom.dropzone.hidden = true;
   dom.stage.hidden = false;
   dom.panel.hidden = false;
-  dom.fileName.hidden = false;
-  dom.imageDims.hidden = false;
+  dom.fileChip.hidden = false;
   dom.fileName.textContent = name;
   dom.imageDims.textContent = `${width}×${height}`;
 }
@@ -89,8 +88,7 @@ export function reset() {
   dom.stage.hidden = true;
   dom.panel.hidden = true;
   dom.dropzone.hidden = false;
-  dom.fileName.hidden = true;
-  dom.imageDims.hidden = true;
+  dom.fileChip.hidden = true;
   set({ image: null });
   clearLastImage();
 }

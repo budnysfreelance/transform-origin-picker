@@ -8,9 +8,10 @@ import { imageSize } from './state.js';
 import { imageToScreen, toPixels } from './coords.js';
 import { cachedStageSize } from './viewport.js';
 
-const SIZE = 150;      // px na ekranie
+const SIZE = 164;      // px na ekranie
 const ZOOM = 8;        // ile pikseli ekranu na piksel obrazu
-const MARGIN = 10;
+const MARGIN = 28;
+const LABEL_H = 22;
 
 export function render(s) {
   const visible = Boolean(s.image) && s.loupe;
@@ -57,7 +58,7 @@ function draw(s, center, size) {
   // Ustawiane po każdej zmianie rozmiaru canvasu — wtedy stan kontekstu wraca do domyślnego.
   ctx.imageSmoothingEnabled = false;
 
-  ctx.fillStyle = '#0b0c0e';
+  ctx.fillStyle = '#1a1c2b';
   ctx.fillRect(0, 0, SIZE, SIZE);
 
   const sourceSpan = SIZE / ZOOM;  // ile pikseli obrazu mieści się w lupie
@@ -81,10 +82,11 @@ function draw(s, center, size) {
 
   drawGrid(ctx);
   drawCrosshair(ctx);
+  drawLabel(ctx);
 }
 
 function drawGrid(ctx) {
-  ctx.strokeStyle = '#ffffff1c';
+  ctx.strokeStyle = 'rgba(233, 233, 237, .09)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   for (let offset = 0; offset <= SIZE; offset += ZOOM) {
@@ -98,7 +100,8 @@ function drawGrid(ctx) {
 
 function drawCrosshair(ctx) {
   const center = SIZE / 2;
-  ctx.strokeStyle = '#7cff6b';
+
+  ctx.strokeStyle = 'rgba(210, 206, 253, .5)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(center + 0.5, 0);
@@ -111,7 +114,21 @@ function drawCrosshair(ctx) {
   ctx.lineTo(SIZE, center + 0.5);
   ctx.stroke();
 
+  // Pierścień w środku to właściwy wskaźnik punktu — pełna krycie.
+  ctx.strokeStyle = '#e7e5fe';
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(center, center, 3.5, 0, Math.PI * 2);
+  ctx.arc(center, center, 4.5, 0, Math.PI * 2);
   ctx.stroke();
+}
+
+function drawLabel(ctx) {
+  ctx.fillStyle = 'rgba(15, 16, 26, .7)';
+  ctx.fillRect(0, SIZE - LABEL_H, SIZE, LABEL_H);
+
+  ctx.fillStyle = '#b2b6ca';
+  ctx.font = '500 10px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`LUPA · ${ZOOM * 100}%`, SIZE / 2, SIZE - LABEL_H / 2 + 0.5);
 }

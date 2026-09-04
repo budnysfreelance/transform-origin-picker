@@ -116,10 +116,13 @@ function stop() {
  *  rozmiaru okna — nie w każdej klatce przeciągania. */
 function layoutFrame() {
   const size = imageSize();
-  const available = Math.max(80, dom.previewTile.clientWidth - 28);
+  // Wymiary bierzemy z kafelka, a nie ze stałych — inaczej zmiana jego
+  // wysokości w CSS po cichu zaczyna przycinać podgląd.
+  const availableW = Math.max(80, dom.previewTile.clientWidth - 28);
+  const availableH = Math.max(60, dom.previewTile.clientHeight - 28);
   // Bez zaokrąglania — ułamkowy rozmiar utrzymuje proporcje dokładnie, dzięki
   // czemu tileScale opisuje kafelek co do piksela i obrys się nie rozjeżdża.
-  tileScale = Math.min(available / size.width, 190 / size.height);
+  tileScale = Math.min(availableW / size.width, availableH / size.height);
   dom.previewFrame.style.width = `${size.width * tileScale}px`;
   dom.previewFrame.style.height = `${size.height * tileScale}px`;
 }

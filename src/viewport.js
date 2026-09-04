@@ -4,6 +4,7 @@
 import { dom } from './dom.js';
 import { state, set, imageSize } from './state.js';
 import { clamp, fitView, centerView, zoomAt } from './coords.js';
+import { currentFormatted } from './actions.js';
 
 const MIN_SCALE = 0.02;
 const MAX_SCALE = 64;
@@ -134,10 +135,30 @@ export function render(s) {
   // Powyżej 2× pokazujemy prawdziwe piksele zamiast rozmycia interpolacją.
   dom.img.classList.toggle('crisp', s.view.scale >= 2);
 
-  dom.zoomBadge.textContent = `${formatZoom(s.view.scale)} · ${width}×${height}`;
+  // Odczyt: zoom · wymiary · aktualny punkt (ten ostatni w kolorze akcentu),
+  // żeby wartość była pod ręką bez odrywania wzroku od obrazu.
+  dom.zoomBadge.replaceChildren(
+    badgePart(formatZoom(s.view.scale)),
+    separator(),
+    badgePart(`${width}×${height}`),
+    separator(),
+    badgePart(currentFormatted().value, 'value'),
+  );
+}
+
+function badgePart(text, className) {
+  const span = document.createElement('span');
+  if (className) span.className = className;
+  span.textContent = text;
+  return span;
+}
+
+function separator() {
+  return badgePart('', 'sep');
 }
 
 function formatZoom(scale) {
   const percent = scale * 100;
-  return `${percent >= 100 ? Math.round(percent) : percent.toFixed(percent < 10 ? 1 : 0)}%`;
+  const rounded = percent >= 100 ? Math.round(percent) : Number(percent.toFixed(percent < 10 ? 1 : 0));
+  return `${String(rounded).replace('.', ',')}%`;
 }

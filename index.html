@@ -5,18 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Precyzyjny picker CSS transform-origin — kliknij punkt na zdjęciu, zobacz animację na żywo, skopiuj gotowy CSS.">
 <title>Transform Origin Picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 </head>
 <body>
 
 <header id="topbar">
-  <h1>Transform <span>Origin</span> Picker</h1>
-  <div class="topbar-meta">
-    <span id="fileName" class="file-name" hidden></span>
-    <span id="imageDims" class="dims" hidden></span>
+  <div class="brand"><span>Transform</span><span class="brand-accent">Origin</span><span>Picker</span></div>
+
+  <div class="file-chip" id="fileChip" hidden>
+    <span id="fileName" class="file-name"></span>
+    <span class="chip-sep"></span>
+    <span id="imageDims" class="dims"></span>
   </div>
+
   <div class="topbar-actions">
-    <button type="button" class="ghost" id="openBtn" title="Otwórz obrazek (O)">Otwórz</button>
-    <button type="button" class="ghost" id="helpBtn" title="Skróty klawiszowe (?)" aria-haspopup="dialog">Skróty</button>
+    <button type="button" class="btn btn-secondary" id="openBtn" title="Otwórz obrazek (O)">Otwórz</button>
+    <button type="button" class="btn btn-secondary" id="helpBtn" title="Skróty klawiszowe (?)" aria-haspopup="dialog">Skróty</button>
   </div>
 </header>
 
@@ -25,11 +31,13 @@
     <div class="dropzone-inner">
       <p class="dropzone-title">Przeciągnij obrazek, wklej go <kbd>⌘V</kbd> albo kliknij</p>
       <p class="dropzone-sub">PNG · JPG · WEBP · GIF · SVG — nic nie wychodzi poza Twoją przeglądarkę</p>
-      <button type="button" class="primary" id="dropzoneBtn">Wybierz plik</button>
+      <button type="button" class="btn btn-primary" id="dropzoneBtn">Wybierz plik</button>
     </div>
   </section>
 
   <section id="stage" tabindex="0" role="application" aria-label="Scena z obrazkiem — kliknij lub przeciągnij, żeby ustawić transform-origin; strzałki przesuwają o piksel" hidden>
+    <div class="stage-glow" aria-hidden="true"></div>
+
     <div id="canvasLayer">
       <img id="img" alt="" draggable="false">
     </div>
@@ -44,8 +52,9 @@
       <div id="marker"></div>
     </div>
 
-    <canvas id="loupe" width="300" height="300" aria-hidden="true" hidden></canvas>
+    <canvas id="loupe" width="328" height="328" aria-hidden="true" hidden></canvas>
     <div id="zoomBadge" aria-hidden="true"></div>
+    <p class="stage-hint" aria-hidden="true">przeciągnij punkt · przewiń, aby przybliżyć</p>
     <div id="liveRegion" class="sr-only" role="status" aria-live="polite"></div>
   </section>
 
@@ -55,11 +64,13 @@
       <section class="block">
         <div class="block-head">
           <h2>Podgląd</h2>
+          <span class="rule"></span>
           <div class="head-actions">
             <button type="button" class="chip" id="previewPlay" title="Play/pause (P)">Pauza</button>
             <button type="button" class="chip" id="previewStage" title="Animuj też w scenie (I)" aria-pressed="false">W scenie</button>
           </div>
         </div>
+
         <div class="preview-tile">
           <div class="preview-frame" id="previewFrame">
             <img id="previewImg" alt="" draggable="false">
@@ -70,57 +81,65 @@
             <div class="preview-origin" id="previewOrigin"></div>
           </div>
         </div>
+
         <div class="preset-row" id="presetRow" role="group" aria-label="Rodzaj animacji">
-          <button type="button" data-preset="pulse" class="active">pulse</button>
-          <button type="button" data-preset="spin">spin</button>
-          <button type="button" data-preset="zoom">zoom</button>
-          <button type="button" data-preset="flip">flip</button>
-          <button type="button" data-preset="custom">ręcznie</button>
+          <button type="button" class="btn btn-secondary" data-preset="pulse">pulse</button>
+          <button type="button" class="btn btn-secondary" data-preset="spin">spin</button>
+          <button type="button" class="btn btn-secondary" data-preset="zoom">zoom</button>
+          <button type="button" class="btn btn-secondary" data-preset="flip">flip</button>
+          <button type="button" class="btn btn-secondary" data-preset="custom">ręcznie</button>
         </div>
+
         <div class="slider-row" id="customSliders" hidden>
           <div class="slider-field">
-            <label for="previewScaleInput">skala</label>
+            <div class="slider-head">
+              <label for="previewScaleInput">skala</label>
+              <input type="text" id="previewScaleInput" inputmode="decimal" autocomplete="off"
+                     spellcheck="false" aria-label="Skala podglądu">
+            </div>
             <input type="range" id="previewScale" min="0.1" max="4" step="0.01" value="1.6"
                    aria-label="Skala podglądu — suwak">
-            <input type="number" id="previewScaleInput" step="0.01" min="0.01" max="20"
-                   inputmode="decimal" value="1.6">
           </div>
           <div class="slider-field">
-            <label for="previewRotateInput">obrót</label>
+            <div class="slider-head">
+              <label for="previewRotateInput">obrót</label>
+              <input type="text" id="previewRotateInput" inputmode="decimal" autocomplete="off"
+                     spellcheck="false" aria-label="Obrót podglądu">
+            </div>
             <input type="range" id="previewRotate" min="-180" max="180" step="1" value="25"
                    aria-label="Obrót podglądu — suwak">
-            <input type="number" id="previewRotateInput" step="0.1" min="-360" max="360"
-                   inputmode="decimal" value="25">
           </div>
         </div>
       </section>
 
       <section class="block">
-        <div class="block-head"><h2>Punkt</h2>
+        <div class="block-head">
+          <h2>Punkt</h2>
+          <span class="rule"></span>
           <div class="head-actions">
-            <button type="button" class="chip" id="undoBtn" title="Cofnij (⌘Z)" disabled>↶</button>
-            <button type="button" class="chip" id="redoBtn" title="Ponów (⌘⇧Z)" disabled>↷</button>
+            <button type="button" class="btn btn-secondary btn-icon" id="undoBtn" title="Cofnij (⌘Z)" disabled>↺</button>
+            <button type="button" class="btn btn-secondary btn-icon" id="redoBtn" title="Ponów (⌘⇧Z)" disabled>↻</button>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
             <label for="xInput">X</label>
-            <input type="number" id="xInput" step="0.1" inputmode="decimal">
+            <input type="text" id="xInput" inputmode="decimal" autocomplete="off" spellcheck="false">
           </div>
           <div class="field">
             <label for="yInput">Y</label>
-            <input type="number" id="yInput" step="0.1" inputmode="decimal">
+            <input type="text" id="yInput" inputmode="decimal" autocomplete="off" spellcheck="false">
           </div>
         </div>
 
-        <div class="segmented" id="unitToggle" role="group" aria-label="Jednostka">
+        <div class="seg" id="unitToggle" role="group" aria-label="Jednostka">
           <button type="button" data-unit="pct" class="active">%</button>
           <button type="button" data-unit="px">px</button>
         </div>
 
         <div class="grid9-row">
-          <div class="grid9" id="grid9" role="group" aria-label="Presety 9 punktów">
+          <div class="surface-card grid9" id="grid9" role="group" aria-label="Presety 9 punktów">
             <button type="button" data-x="0"   data-y="0"   title="lewy górny (7)"></button>
             <button type="button" data-x="0.5" data-y="0"   title="górny środek (8)"></button>
             <button type="button" data-x="1"   data-y="0"   title="prawy górny (9)"></button>
@@ -131,65 +150,78 @@
             <button type="button" data-x="0.5" data-y="1"   title="dolny środek (2)"></button>
             <button type="button" data-x="1"   data-y="1"   title="prawy dolny (3)"></button>
           </div>
-          <div class="dpad" role="group" aria-label="Przesuń punkt">
-            <button type="button" class="up" data-nudge="up" aria-label="w górę">↑</button>
-            <button type="button" class="left" data-nudge="left" aria-label="w lewo">←</button>
-            <div class="center" id="stepLabel">1</div>
-            <button type="button" class="right" data-nudge="right" aria-label="w prawo">→</button>
-            <button type="button" class="down" data-nudge="down" aria-label="w dół">↓</button>
+
+          <div class="surface-card dpad" role="group" aria-label="Przesuń punkt">
+            <button type="button" class="btn btn-secondary up" data-nudge="up" aria-label="w górę">↑</button>
+            <button type="button" class="btn btn-secondary left" data-nudge="left" aria-label="w lewo">←</button>
+            <span class="center" id="stepLabel">1px</span>
+            <button type="button" class="btn btn-secondary right" data-nudge="right" aria-label="w prawo">→</button>
+            <button type="button" class="btn btn-secondary down" data-nudge="down" aria-label="w dół">↓</button>
           </div>
         </div>
 
-        <div class="segmented small" id="stepToggle" role="group" aria-label="Krok w pikselach obrazu">
-          <button type="button" data-step="0.1">0.1px</button>
+        <div class="seg" id="stepToggle" role="group" aria-label="Krok w pikselach obrazu">
+          <button type="button" data-step="0.1">0,1px</button>
           <button type="button" data-step="1" class="active">1px</button>
           <button type="button" data-step="10">10px</button>
         </div>
 
-        <label class="toggle-row">
-          <input type="checkbox" id="snapToggle" checked>
-          <span>Przyciąganie do siatki <kbd>S</kbd></span>
-        </label>
-        <label class="toggle-row">
-          <input type="checkbox" id="loupeToggle" checked>
-          <span>Lupa pikseli <kbd>L</kbd></span>
-        </label>
+        <div class="checks">
+          <label class="check">
+            <input type="checkbox" id="snapToggle" checked>
+            <span>Przyciąganie do siatki</span>
+            <kbd>S</kbd>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="loupeToggle" checked>
+            <span>Lupa pikseli</span>
+            <kbd>L</kbd>
+          </label>
+        </div>
       </section>
 
       <section class="block">
         <div class="block-head">
           <h2>CSS</h2>
+          <span class="rule"></span>
           <div class="head-actions">
-            <button type="button" class="chip" id="precisionBtn" title="Miejsca po przecinku">.1</button>
+            <button type="button" class="tag tag-neutral" id="precisionBtn" title="Miejsca po przecinku">.1</button>
           </div>
         </div>
+
         <code id="cssOut">transform-origin: 50% 50%;</code>
+
         <div class="actions">
-          <button type="button" class="primary" id="copyBtn">Kopiuj</button>
-          <button type="button" class="ghost" id="copyValueBtn" title="Skopiuj samą wartość">Wartość</button>
+          <button type="button" class="btn btn-primary" id="copyBtn">Kopiuj</button>
+          <button type="button" class="btn btn-secondary" id="copyValueBtn" title="Skopiuj samą wartość">Wartość</button>
         </div>
-        <label class="toggle-row">
+
+        <label class="check">
           <input type="checkbox" id="autoCopyToggle">
           <span>Kopiuj automatycznie przy każdej zmianie</span>
         </label>
+
         <details class="template">
           <summary>Własny szablon</summary>
-          <input type="text" id="templateInput" spellcheck="false" aria-label="Szablon eksportu">
+          <input type="text" id="templateInput" class="input" spellcheck="false" aria-label="Szablon eksportu">
           <p class="hint">Podstawiane: <code>{value}</code>, <code>{x}</code>, <code>{y}</code>. Np. <code>origin-[{x}_{y}]</code> dla Tailwinda.</p>
         </details>
       </section>
 
       <section class="block">
-        <div class="block-head"><h2>Przypięte</h2></div>
+        <div class="block-head">
+          <h2>Przypięte</h2>
+          <span class="rule"></span>
+        </div>
         <div class="pins" id="pins" role="group" aria-label="Przypięte punkty">
-          <button type="button" data-pin="0"><b>A</b><span>puste</span></button>
-          <button type="button" data-pin="1"><b>B</b><span>puste</span></button>
-          <button type="button" data-pin="2"><b>C</b><span>puste</span></button>
+          <button type="button" class="surface-card" data-pin="0"><b>A</b><span>puste</span></button>
+          <button type="button" class="surface-card" data-pin="1"><b>B</b><span>puste</span></button>
+          <button type="button" class="surface-card" data-pin="2"><b>C</b><span>puste</span></button>
         </div>
         <p class="hint"><kbd>A</kbd>/<kbd>B</kbd>/<kbd>C</kbd> skacze do punktu, <kbd>⇧</kbd>+klawisz zapisuje bieżący.</p>
       </section>
 
-      <button type="button" class="ghost wide" id="resetBtn">Nowy obrazek <kbd>Esc</kbd></button>
+      <button type="button" class="btn btn-secondary btn-block" id="resetBtn">Nowy obrazek <kbd>Esc</kbd></button>
     </div>
   </aside>
 </main>
@@ -198,14 +230,14 @@
   <div class="help-card">
     <div class="help-head">
       <h2>Skróty klawiszowe</h2>
-      <button type="button" class="chip" id="helpClose" aria-label="Zamknij">✕</button>
+      <button type="button" class="btn btn-secondary btn-icon" id="helpClose" aria-label="Zamknij">✕</button>
     </div>
     <div class="help-cols">
       <dl>
         <dt>klik / przeciągnij</dt><dd>ustaw punkt</dd>
         <dt>strzałki</dt><dd>krok o 1 px obrazu</dd>
         <dt>⇧ + strzałki</dt><dd>×10</dd>
-        <dt>⌥ + strzałki</dt><dd>0.1 px (sub-pixel)</dd>
+        <dt>⌥ + strzałki</dt><dd>0,1 px (sub-pixel)</dd>
         <dt>1 – 9</dt><dd>presety siatki (układ numpada)</dd>
         <dt>A / B / C</dt><dd>skok do przypiętego punktu</dd>
         <dt>⇧ + A / B / C</dt><dd>przypnij bieżący punkt</dd>

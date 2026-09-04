@@ -8,6 +8,7 @@ export const dom = {
   helpBtn: byId('helpBtn'),
   helpOverlay: byId('helpOverlay'),
   helpClose: byId('helpClose'),
+  fileChip: byId('fileChip'),
   fileName: byId('fileName'),
   imageDims: byId('imageDims'),
 

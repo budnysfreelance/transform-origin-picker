@@ -9,6 +9,12 @@ function isEditing(element) {
   return document.activeElement === element;
 }
 
+/** Liczby w interfejsie po polsku: 44,92. Eksport CSS zostaje z kropką —
+ *  tego wymaga składnia, więc format.js celowo tego nie dotyka. */
+function pl(text) {
+  return String(text).replace('.', ',');
+}
+
 function parseField(input) {
   const value = Number.parseFloat(input.value.replace(',', '.'));
   return Number.isFinite(value) ? value : null;
@@ -120,14 +126,14 @@ export function render(s) {
 
   // Pola nie są nadpisywane w trakcie pisania, żeby nie zjadać kursora.
   if (!isEditing(dom.xInput)) {
-    dom.xInput.value = s.unit === 'px'
+    dom.xInput.value = pl(s.unit === 'px'
       ? formatNumber(s.origin.x * size.width, 2)
-      : formatNumber(s.origin.x * 100, 2);
+      : formatNumber(s.origin.x * 100, 2));
   }
   if (!isEditing(dom.yInput)) {
-    dom.yInput.value = s.unit === 'px'
+    dom.yInput.value = pl(s.unit === 'px'
       ? formatNumber(s.origin.y * size.height, 2)
-      : formatNumber(s.origin.y * 100, 2);
+      : formatNumber(s.origin.y * 100, 2));
   }
 
   setActive(dom.unitToggle, 'unit', s.unit);
@@ -139,24 +145,53 @@ export function render(s) {
     button.classList.toggle('active', matches);
   }
 
-  dom.stepLabel.textContent = `${s.step}px`;
+  dom.stepLabel.textContent = `${pl(s.step)}px`;
   dom.precisionBtn.textContent = `.${s.precision}`;
   dom.snapToggle.checked = s.snap;
   dom.loupeToggle.checked = s.loupe;
   dom.autoCopyToggle.checked = s.autoCopy;
   if (!isEditing(dom.templateInput)) dom.templateInput.value = s.template;
 
-  dom.cssOut.textContent = actions.currentCss();
+  renderCss(actions.currentCss());
 
   dom.previewPlay.textContent = s.preview.playing ? 'Pauza' : 'Graj';
   dom.previewStage.setAttribute('aria-pressed', String(s.previewInStage));
   dom.customSliders.hidden = s.preview.preset !== 'custom';
   dom.previewScale.value = String(s.preview.scale);
   dom.previewRotate.value = String(s.preview.rotate);
-  if (!isEditing(dom.previewScaleInput)) dom.previewScaleInput.value = String(s.preview.scale);
-  if (!isEditing(dom.previewRotateInput)) dom.previewRotateInput.value = String(s.preview.rotate);
+  if (!isEditing(dom.previewScaleInput)) dom.previewScaleInput.value = pl(s.preview.scale);
+  if (!isEditing(dom.previewRotateInput)) dom.previewRotateInput.value = `${pl(s.preview.rotate)}°`;
 
   renderPins(s);
+}
+
+/** Rozbija deklarację na właściwość / interpunkcję / wartość. Szablon jest
+ *  edytowalny, więc gdy nie wygląda jak deklaracja, zostawiamy zwykły tekst. */
+function renderCss(text) {
+  const colon = text.indexOf(':');
+  if (colon === -1) {
+    dom.cssOut.textContent = text;
+    return;
+  }
+
+  let value = text.slice(colon + 1);
+  const semicolon = value.endsWith(';') ? ';' : '';
+  if (semicolon) value = value.slice(0, -1);
+
+  const parts = [
+    piece('css-prop', text.slice(0, colon)),
+    piece('css-punct', ':'),
+    piece('css-value', value),
+  ];
+  if (semicolon) parts.push(piece('css-punct', semicolon));
+  dom.cssOut.replaceChildren(...parts);
+}
+
+function piece(className, text) {
+  const span = document.createElement('span');
+  span.className = className;
+  span.textContent = text;
+  return span;
 }
 
 function setActive(container, key, value) {
