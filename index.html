@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Precyzyjny picker CSS transform-origin — kliknij punkt na zdjęciu, zobacz animację na żywo, skopiuj gotowy CSS.">
+<title>Transform Origin Picker</title>
+</head>
+<body>
+
+<header id="topbar">
+  <h1>Transform <span>Origin</span> Picker</h1>
+  <div class="topbar-meta">
+    <span id="fileName" class="file-name" hidden></span>
+    <span id="imageDims" class="dims" hidden></span>
+  </div>
+  <div class="topbar-actions">
+    <button type="button" class="ghost" id="openBtn" title="Otwórz obrazek (O)">Otwórz</button>
+    <button type="button" class="ghost" id="helpBtn" title="Skróty klawiszowe (?)" aria-haspopup="dialog">Skróty</button>
+  </div>
+</header>
+
+<main class="workspace" id="workspace">
+  <section id="dropzone">
+    <div class="dropzone-inner">
+      <p class="dropzone-title">Przeciągnij obrazek, wklej go <kbd>⌘V</kbd> albo kliknij</p>
+      <p class="dropzone-sub">PNG · JPG · WEBP · GIF · SVG — nic nie wychodzi poza Twoją przeglądarkę</p>
+      <button type="button" class="primary" id="dropzoneBtn">Wybierz plik</button>
+    </div>
+  </section>
+
+  <section id="stage" tabindex="0" role="application" aria-label="Scena z obrazkiem — kliknij lub przeciągnij, żeby ustawić transform-origin; strzałki przesuwają o piksel" hidden>
+    <div id="canvasLayer">
+      <img id="img" alt="" draggable="false">
+      <div id="ghost" aria-hidden="true"></div>
+    </div>
+
+    <div id="overlay" aria-hidden="true">
+      <div class="guide guide-h"></div>
+      <div class="guide guide-v"></div>
+      <div id="marker"></div>
+    </div>
+
+    <canvas id="loupe" width="300" height="300" aria-hidden="true" hidden></canvas>
+    <div id="zoomBadge" aria-hidden="true"></div>
+    <div id="liveRegion" class="sr-only" role="status" aria-live="polite"></div>
+  </section>
+
+  <aside id="panel" hidden>
+    <div class="panel-scroll">
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Podgląd</h2>
+          <div class="head-actions">
+            <button type="button" class="chip" id="previewPlay" title="Play/pause (P)">Pauza</button>
+            <button type="button" class="chip" id="previewStage" title="Animuj też w scenie (I)" aria-pressed="false">W scenie</button>
+          </div>
+        </div>
+        <div class="preview-tile">
+          <div class="preview-frame" id="previewFrame">
+            <img id="previewImg" alt="" draggable="false">
+            <div class="preview-origin" id="previewOrigin"></div>
+          </div>
+        </div>
+        <div class="preset-row" id="presetRow" role="group" aria-label="Rodzaj animacji">
+          <button type="button" data-preset="pulse" class="active">pulse</button>
+          <button type="button" data-preset="spin">spin</button>
+          <button type="button" data-preset="zoom">zoom</button>
+          <button type="button" data-preset="flip">flip</button>
+          <button type="button" data-preset="custom">ręcznie</button>
+        </div>
+        <div class="slider-row" id="customSliders" hidden>
+          <label>
+            <span>skala <b id="previewScaleValue">1.6</b></span>
+            <input type="range" id="previewScale" min="0.2" max="3" step="0.05" value="1.6">
+          </label>
+          <label>
+            <span>obrót <b id="previewRotateValue">25°</b></span>
+            <input type="range" id="previewRotate" min="-180" max="180" step="1" value="25">
+          </label>
+        </div>
+        <label class="toggle-row">
+          <input type="checkbox" id="ghostToggle">
+          <span>Obrys skrajnej klatki <kbd>G</kbd></span>
+        </label>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h2>Punkt</h2>
+          <div class="head-actions">
+            <button type="button" class="chip" id="undoBtn" title="Cofnij (⌘Z)" disabled>↶</button>
+            <button type="button" class="chip" id="redoBtn" title="Ponów (⌘⇧Z)" disabled>↷</button>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="xInput">X</label>
+            <input type="number" id="xInput" step="0.1" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label for="yInput">Y</label>
+            <input type="number" id="yInput" step="0.1" inputmode="decimal">
+          </div>
+        </div>
+
+        <div class="segmented" id="unitToggle" role="group" aria-label="Jednostka">
+          <button type="button" data-unit="pct" class="active">%</button>
+          <button type="button" data-unit="px">px</button>
+          <button type="button" data-unit="keyword">słowa</button>
+        </div>
+
+        <div class="grid9-row">
+          <div class="grid9" id="grid9" role="group" aria-label="Presety 9 punktów">
+            <button type="button" data-x="0"   data-y="0"   title="lewy górny (7)"></button>
+            <button type="button" data-x="0.5" data-y="0"   title="górny środek (8)"></button>
+            <button type="button" data-x="1"   data-y="0"   title="prawy górny (9)"></button>
+            <button type="button" data-x="0"   data-y="0.5" title="lewy środek (4)"></button>
+            <button type="button" data-x="0.5" data-y="0.5" title="środek (5)"></button>
+            <button type="button" data-x="1"   data-y="0.5" title="prawy środek (6)"></button>
+            <button type="button" data-x="0"   data-y="1"   title="lewy dolny (1)"></button>
+            <button type="button" data-x="0.5" data-y="1"   title="dolny środek (2)"></button>
+            <button type="button" data-x="1"   data-y="1"   title="prawy dolny (3)"></button>
+          </div>
+          <div class="dpad" role="group" aria-label="Przesuń punkt">
+            <button type="button" class="up" data-nudge="up" aria-label="w górę">↑</button>
+            <button type="button" class="left" data-nudge="left" aria-label="w lewo">←</button>
+            <div class="center" id="stepLabel">1</div>
+            <button type="button" class="right" data-nudge="right" aria-label="w prawo">→</button>
+            <button type="button" class="down" data-nudge="down" aria-label="w dół">↓</button>
+          </div>
+        </div>
+
+        <div class="segmented small" id="stepToggle" role="group" aria-label="Krok w pikselach obrazu">
+          <button type="button" data-step="0.1">0.1px</button>
+          <button type="button" data-step="1" class="active">1px</button>
+          <button type="button" data-step="10">10px</button>
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" id="snapToggle" checked>
+          <span>Przyciąganie do siatki <kbd>S</kbd></span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="loupeToggle" checked>
+          <span>Lupa pikseli <kbd>L</kbd></span>
+        </label>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>CSS</h2>
+          <div class="head-actions">
+            <button type="button" class="chip" id="precisionBtn" title="Miejsca po przecinku">.1</button>
+          </div>
+        </div>
+        <code id="cssOut">transform-origin: 50% 50%;</code>
+        <div class="actions">
+          <button type="button" class="primary" id="copyBtn">Kopiuj</button>
+          <button type="button" class="ghost" id="copyValueBtn" title="Skopiuj samą wartość">Wartość</button>
+        </div>
+        <label class="toggle-row">
+          <input type="checkbox" id="autoCopyToggle">
+          <span>Kopiuj automatycznie przy każdej zmianie</span>
+        </label>
+        <details class="template">
+          <summary>Własny szablon</summary>
+          <input type="text" id="templateInput" spellcheck="false" aria-label="Szablon eksportu">
+          <p class="hint">Podstawiane: <code>{value}</code>, <code>{x}</code>, <code>{y}</code>. Np. <code>origin-[{x}_{y}]</code> dla Tailwinda.</p>
+        </details>
+      </section>
+
+      <section class="block">
+        <div class="block-head"><h2>Przypięte</h2></div>
+        <div class="pins" id="pins" role="group" aria-label="Przypięte punkty">
+          <button type="button" data-pin="0"><b>A</b><span>puste</span></button>
+          <button type="button" data-pin="1"><b>B</b><span>puste</span></button>
+          <button type="button" data-pin="2"><b>C</b><span>puste</span></button>
+        </div>
+        <p class="hint"><kbd>A</kbd>/<kbd>B</kbd>/<kbd>C</kbd> skacze do punktu, <kbd>⇧</kbd>+klawisz zapisuje bieżący.</p>
+      </section>
+
+      <button type="button" class="ghost wide" id="resetBtn">Nowy obrazek <kbd>Esc</kbd></button>
+    </div>
+  </aside>
+</main>
+
+<div id="helpOverlay" hidden role="dialog" aria-modal="true" aria-label="Skróty klawiszowe">
+  <div class="help-card">
+    <div class="help-head">
+      <h2>Skróty klawiszowe</h2>
+      <button type="button" class="chip" id="helpClose" aria-label="Zamknij">✕</button>
+    </div>
+    <div class="help-cols">
+      <dl>
+        <dt>klik / przeciągnij</dt><dd>ustaw punkt</dd>
+        <dt>strzałki</dt><dd>krok o 1 px obrazu</dd>
+        <dt>⇧ + strzałki</dt><dd>×10</dd>
+        <dt>⌥ + strzałki</dt><dd>0.1 px (sub-pixel)</dd>
+        <dt>1 – 9</dt><dd>presety siatki (układ numpada)</dd>
+        <dt>A / B / C</dt><dd>skok do przypiętego punktu</dd>
+        <dt>⇧ + A / B / C</dt><dd>przypnij bieżący punkt</dd>
+      </dl>
+      <dl>
+        <dt>kółko myszy</dt><dd>zoom do kursora</dd>
+        <dt>spacja + przeciągnij</dt><dd>przesuń widok</dd>
+        <dt>⌘0 / ⌘9</dt><dd>dopasuj / 100 %</dd>
+        <dt>+ / −</dt><dd>przybliż / oddal</dd>
+        <dt>P · I · G</dt><dd>podgląd · w scenie · obrys</dd>
+        <dt>S · L</dt><dd>przyciąganie · lupa</dd>
+        <dt>⌘C · ⌘V</dt><dd>kopiuj CSS · wklej obrazek</dd>
+        <dt>⌘Z · ⌘⇧Z</dt><dd>cofnij · ponów</dd>
+        <dt>O · Esc · ?</dt><dd>otwórz · nowy · ta pomoc</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
