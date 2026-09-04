@@ -32,10 +32,13 @@
   <section id="stage" tabindex="0" role="application" aria-label="Scena z obrazkiem — kliknij lub przeciągnij, żeby ustawić transform-origin; strzałki przesuwają o piksel" hidden>
     <div id="canvasLayer">
       <img id="img" alt="" draggable="false">
-      <div id="ghost" aria-hidden="true"></div>
     </div>
 
     <div id="overlay" aria-hidden="true">
+      <svg class="outline" id="stageOutline">
+        <polygon class="outline-under"></polygon>
+        <polygon class="outline-over"></polygon>
+      </svg>
       <div class="guide guide-h"></div>
       <div class="guide guide-v"></div>
       <div id="marker"></div>
@@ -60,6 +63,10 @@
         <div class="preview-tile">
           <div class="preview-frame" id="previewFrame">
             <img id="previewImg" alt="" draggable="false">
+            <svg class="outline" id="previewOutline" aria-hidden="true">
+              <polygon class="outline-under"></polygon>
+              <polygon class="outline-over"></polygon>
+            </svg>
             <div class="preview-origin" id="previewOrigin"></div>
           </div>
         </div>
@@ -71,19 +78,21 @@
           <button type="button" data-preset="custom">ręcznie</button>
         </div>
         <div class="slider-row" id="customSliders" hidden>
-          <label>
-            <span>skala <b id="previewScaleValue">1.6</b></span>
-            <input type="range" id="previewScale" min="0.2" max="3" step="0.05" value="1.6">
-          </label>
-          <label>
-            <span>obrót <b id="previewRotateValue">25°</b></span>
-            <input type="range" id="previewRotate" min="-180" max="180" step="1" value="25">
-          </label>
+          <div class="slider-field">
+            <label for="previewScaleInput">skala</label>
+            <input type="range" id="previewScale" min="0.1" max="4" step="0.01" value="1.6"
+                   aria-label="Skala podglądu — suwak">
+            <input type="number" id="previewScaleInput" step="0.01" min="0.01" max="20"
+                   inputmode="decimal" value="1.6">
+          </div>
+          <div class="slider-field">
+            <label for="previewRotateInput">obrót</label>
+            <input type="range" id="previewRotate" min="-180" max="180" step="1" value="25"
+                   aria-label="Obrót podglądu — suwak">
+            <input type="number" id="previewRotateInput" step="0.1" min="-360" max="360"
+                   inputmode="decimal" value="25">
+          </div>
         </div>
-        <label class="toggle-row">
-          <input type="checkbox" id="ghostToggle">
-          <span>Obrys skrajnej klatki <kbd>G</kbd></span>
-        </label>
       </section>
 
       <section class="block">
@@ -108,7 +117,6 @@
         <div class="segmented" id="unitToggle" role="group" aria-label="Jednostka">
           <button type="button" data-unit="pct" class="active">%</button>
           <button type="button" data-unit="px">px</button>
-          <button type="button" data-unit="keyword">słowa</button>
         </div>
 
         <div class="grid9-row">
@@ -207,7 +215,7 @@
         <dt>spacja + przeciągnij</dt><dd>przesuń widok</dd>
         <dt>⌘0 / ⌘9</dt><dd>dopasuj / 100 %</dd>
         <dt>+ / −</dt><dd>przybliż / oddal</dd>
-        <dt>P · I · G</dt><dd>podgląd · w scenie · obrys</dd>
+        <dt>P · I</dt><dd>podgląd · animacja w scenie</dd>
         <dt>S · L</dt><dd>przyciąganie · lupa</dd>
         <dt>⌘C · ⌘V</dt><dd>kopiuj CSS · wklej obrazek</dd>
         <dt>⌘Z · ⌘⇧Z</dt><dd>cofnij · ponów</dd>

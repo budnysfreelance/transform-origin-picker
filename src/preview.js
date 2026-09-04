@@ -4,12 +4,15 @@
 
 import { dom } from './dom.js';
 import { state, imageSize } from './state.js';
+import { toPixels } from './coords.js';
+import { screenPolygon, IDENTITY_FRAME } from './frame.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 let rafId = null;
 let startedAt = 0;
-let lastT = 0;   // postęp ostatniej klatki — pauza zatrzymuje obraz w miejscu
+let lastT = 0;      // postęp ostatniej klatki — pauza zatrzymuje obraz w miejscu
+let tileScale = 1;  // skala kafelka podglądu, zapamiętana przy layoucie
 
 /** Klatka animacji dla postępu t ∈ [0,1). */
 function frameAt(preset, t, config) {
@@ -38,12 +41,6 @@ function frameAt(preset, t, config) {
   }
 }
 
-/** Najbardziej odchylona klatka danego presetu — do obrysu ghosta. */
-function extremeFrame(preset, config) {
-  const t = { spin: 0.125, pulse: 0.5, zoom: 0.85, flip: 0.5 }[preset] ?? 0;
-  return frameAt(preset, t, config);
-}
-
 function easeOutCubic(t) {
   return 1 - (1 - t) ** 3;
 }
@@ -68,6 +65,27 @@ function applyFrame(frame) {
   // Scena: transform na <img> składa się z pan/zoom warstwy nadrzędnej,
   // więc podgląd nie psuje współrzędnych markera.
   dom.img.style.transform = s.previewInStage ? css : 'none';
+
+  drawOutlines(frame);
+}
+
+/** Obramowanie zdjęcia — liczone z tych samych rogów, co realna transformacja,
+ *  więc podąża za obrazem także w trakcie animacji. */
+function drawOutlines(frame) {
+  const s = state;
+  if (!s.image) return;
+
+  const size = imageSize();
+  const origin = toPixels(s.origin, size);
+
+  // W scenie obraz jest animowany tylko przy włączonym podglądzie w scenie.
+  setPolygon(dom.stageOutline, screenPolygon(size, origin, s.previewInStage ? frame : IDENTITY_FRAME, s.view));
+  // Kafelek ma własny widok: skala pudełka, bez przesunięcia.
+  setPolygon(dom.previewOutline, screenPolygon(size, origin, frame, { scale: tileScale, panX: 0, panY: 0 }));
+}
+
+function setPolygon(svg, points) {
+  for (const polygon of svg.children) polygon.setAttribute('points', points);
 }
 
 function tick(now) {
@@ -99,9 +117,11 @@ function stop() {
 function layoutFrame() {
   const size = imageSize();
   const available = Math.max(80, dom.previewTile.clientWidth - 28);
-  const scale = Math.min(available / size.width, 190 / size.height);
-  dom.previewFrame.style.width = `${Math.round(size.width * scale)}px`;
-  dom.previewFrame.style.height = `${Math.round(size.height * scale)}px`;
+  // Bez zaokrąglania — ułamkowy rozmiar utrzymuje proporcje dokładnie, dzięki
+  // czemu tileScale opisuje kafelek co do piksela i obrys się nie rozjeżdża.
+  tileScale = Math.min(available / size.width, 190 / size.height);
+  dom.previewFrame.style.width = `${size.width * tileScale}px`;
+  dom.previewFrame.style.height = `${size.height * tileScale}px`;
 }
 
 export function init() {
@@ -112,7 +132,11 @@ export function init() {
     state.preview.preset = 'custom';
   }
   window.addEventListener('resize', () => {
-    if (state.image) layoutFrame();
+    if (!state.image) return;
+    // Sam layoutFrame zmieniłby tileScale, ale obrys zostałby narysowany
+    // według starej skali aż do najbliższej zmiany stanu.
+    layoutFrame();
+    applyFrame(frameAt(state.preview.preset, lastT, state.preview));
   });
 }
 
@@ -133,15 +157,9 @@ export function render(s) {
   const origin = originCss(s.origin);
   dom.previewImg.style.transformOrigin = origin;
   dom.img.style.transformOrigin = origin;
-  dom.ghost.style.transformOrigin = origin;
 
   dom.previewOrigin.style.left = `${s.origin.x * 100}%`;
   dom.previewOrigin.style.top = `${s.origin.y * 100}%`;
-
-  dom.ghost.classList.toggle('on', s.ghost);
-  if (s.ghost) {
-    dom.ghost.style.transform = toCss(extremeFrame(s.preview.preset, s.preview));
-  }
 
   if (isAnimated(s)) {
     start();

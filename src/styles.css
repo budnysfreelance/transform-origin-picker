@@ -154,21 +154,26 @@ body {
 }
 #img.crisp { image-rendering: pixelated; }
 
-#ghost {
-  position: absolute;
-  inset: 0;
-  border: var(--ghost-width, 1px) dashed var(--accent);
-  opacity: .5;
-  pointer-events: none;
-  display: none;
-}
-#ghost.on { display: block; }
-
 #overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
+
+/* Obramowanie zdjęcia — rysowane w warstwie ekranowej, więc grubość linii
+   nie zależy od zoomu. Dwie nałożone kreski: ciemna pod spodem i jasna na
+   wierzchu, żeby krawędź była widoczna na dowolnym tle. */
+.outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.outline polygon { fill: none; }
+.outline .outline-under { stroke: #000; stroke-width: 3; opacity: .5; }
+.outline .outline-over { stroke: #fff; stroke-width: 1; opacity: .9; }
 
 .guide { position: absolute; background: var(--accent); opacity: .28; }
 .guide-h { left: 0; right: 0; height: 1px; }
@@ -276,6 +281,16 @@ body {
   max-width: 100%;
   max-height: 190px;
   line-height: 0;
+  /* Ta sama szachownica co w scenie — bez niej przezroczyste zdjęcie
+     zlewa się z tłem kafelka i nie widać, gdzie się kończy. */
+  background-color: #101114;
+  background-image:
+    linear-gradient(45deg, #191a1e 25%, transparent 25%),
+    linear-gradient(-45deg, #191a1e 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #191a1e 75%),
+    linear-gradient(-45deg, transparent 75%, #191a1e 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
 }
 #previewImg {
   display: block;
@@ -309,16 +324,36 @@ body {
 .preset-row button:hover { color: var(--text); }
 .preset-row button.active:hover { color: var(--accent); }
 
-.slider-row { display: flex; flex-direction: column; gap: 7px; }
-.slider-row label { display: flex; flex-direction: column; gap: 3px; }
-.slider-row span {
+.slider-row { display: flex; flex-direction: column; gap: 9px; }
+.slider-field {
+  display: grid;
+  grid-template-columns: auto 1fr 62px;
+  align-items: center;
+  gap: 8px;
+}
+.slider-field label {
   font-size: 11px;
   color: var(--muted);
-  display: flex;
-  justify-content: space-between;
+  white-space: nowrap;
 }
-.slider-row b { font-family: var(--mono); color: var(--text); font-weight: 400; }
-.slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
+.slider-field input[type=range] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+.slider-field input[type=number] {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 5px 6px;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+}
+.slider-field input[type=number]:focus { border-color: var(--accent); }
 
 /* --- pola i przełączniki -------------------------------------------- */
 

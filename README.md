@@ -14,16 +14,18 @@ więc pętla znika.
 
 ## Funkcje
 
-- **Podgląd na żywo** — presety `pulse`, `spin`, `zoom`, `flip` albo ręczne suwaki skali
-  i obrotu. Opcjonalnie animacja bezpośrednio w scenie oraz obrys skrajnej klatki,
-  który pokazuje, dokąd „ucieka" kadr.
+- **Podgląd na żywo** — presety `pulse`, `spin`, `zoom`, `flip` albo ręczne sterowanie skalą
+  i obrotem (suwak albo wpisana wartość). Opcjonalnie animacja bezpośrednio w scenie.
+- **Widoczna krawędź kadru** — zdjęcia z przezroczystym tłem dostają obramowanie rysowane
+  w warstwie ekranowej, więc linia jest zawsze tak samo cienka niezależnie od zoomu
+  i podąża za zdjęciem także w trakcie animacji.
 - **Precyzja co do piksela** — zoom do 64×, lupa z siatką pikseli, krok strzałkami
   liczony w pikselach źródła (a nie w procentach), sub-pixel na `⌥`.
 - **Przyciąganie** do rogów, środków krawędzi, ćwiartek i tercji — z podświetleniem osi,
   która złapała, i chwilowym wyłączeniem na `⌥`.
 - **Szybkie wejście** — drag & drop w dowolne miejsce okna, `⌘V` ze schowka,
   presety 9 punktów pod klawiszami `1`–`9`.
-- **Eksport** — `%`, `px` albo słowa kluczowe, precyzja 0–2 miejsc, własny szablon
+- **Eksport** — `%` albo `px`, precyzja 0–2 miejsc, własny szablon
   (np. `origin-[{x}_{y}]` dla Tailwinda), auto-kopiowanie przy każdej zmianie.
 - **Historia i sesja** — `⌘Z`/`⌘⇧Z`, trzy przypięte punkty A/B/C do porównywania
   kandydatów, powrót do ostatniego obrazka po odświeżeniu strony.
@@ -36,7 +38,7 @@ więc pętla znika.
 | strzałki | krok o 1 px obrazu | | spacja + przeciągnij | przesuń widok |
 | `⇧` + strzałki | ×10 | | `⌘0` / `⌘9` | dopasuj / 100 % |
 | `⌥` + strzałki | 0.1 px | | `+` / `−` | przybliż / oddal |
-| `1`–`9` | presety siatki (układ numpada) | | `P` · `I` · `G` | podgląd · w scenie · obrys |
+| `1`–`9` | presety siatki (układ numpada) | | `P` · `I` | podgląd · animacja w scenie |
 | `A` / `B` / `C` | skok do przypiętego punktu | | `S` · `L` | przyciąganie · lupa |
 | `⇧` + `A`/`B`/`C` | przypnij bieżący punkt | | `⌘C` · `⌘V` | kopiuj CSS · wklej obrazek |
 | `⌘Z` · `⌘⇧Z` | cofnij · ponów | | `O` · `Esc` · `?` | otwórz · nowy · pomoc |
@@ -45,15 +47,25 @@ Na Windowsie/Linuksie `⌘` to `Ctrl`, a `⌥` to `Alt`.
 
 ## Uruchomienie
 
+Repo jest prywatne. Dostęp nadaje właściciel w *Settings → Collaborators*; potem:
+
 ```bash
+git clone git@github.com:<użytkownik>/transform-origin-picker.git
+cd transform-origin-picker
 npm install
 npm run dev      # http://localhost:5173
+```
+
+Pozostałe komendy:
+
+```bash
 npm test         # testy jednostkowe + test dymny
 npm run build    # dist/index.html — jeden samodzielny plik
 ```
 
-Build jest w całości inline'owany, więc `dist/index.html` działa zarówno na hostingu,
-jak i po zwykłym dwukliku z dysku (`file://`).
+Build jest w całości inline'owany, więc `dist/index.html` można otworzyć zwykłym
+dwuklikiem z dysku (`file://`) i podać dalej jako pojedynczy plik — bez Node'a
+i bez hostingu.
 
 ## Jak to działa
 
@@ -67,10 +79,15 @@ Origin trzymany jest jako współrzędne znormalizowane (0..1, wartości poza za
 legalne — `transform-origin` może wyjść poza box), a przeliczenia siedzą w czystych,
 przetestowanych funkcjach w [`src/coords.js`](src/coords.js) i [`src/format.js`](src/format.js).
 
+Obramowanie zdjęcia stoi na tej samej zasadzie: [`src/frame.js`](src/frame.js) liczy cztery rogi
+po transformacji podglądu (`p' = o + R(θ)·S·(p − o)`) i dopiero wynik przechodzi przez widok sceny.
+Dzięki temu linia nigdy nie przechodzi przez `scale()` i zachowuje stałą grubość.
+
 | Plik | Odpowiedzialność |
 |---|---|
 | `src/coords.js` | przeliczenia image ↔ screen, zoom do kursora, dopasowanie |
-| `src/format.js` | formatowanie `%` / `px` / słów kluczowych, szablony |
+| `src/format.js` | formatowanie `%` / `px`, szablony eksportu |
+| `src/frame.js` | rogi zdjęcia po transformacji — obramowanie kadru |
 | `src/viewport.js` | zoom, pan, rozmiar sceny |
 | `src/picker.js` | klik, przeciąganie, przyciąganie, marker i prowadnice |
 | `src/preview.js` | pętla animacji podglądu |

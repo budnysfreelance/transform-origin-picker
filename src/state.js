@@ -11,12 +11,11 @@ export const state = {
   /** Transformacja widoku sceny. */
   view: { scale: 1, panX: 0, panY: 0 },
 
-  unit: 'pct',        // 'pct' | 'px' | 'keyword'
+  unit: 'pct',        // 'pct' | 'px'
   precision: 1,       // miejsca po przecinku w eksporcie
   step: 1,            // krok nudge'a w pikselach obrazu
   snap: true,
   loupe: true,
-  ghost: false,
   previewInStage: false,
   autoCopy: false,
   template: 'transform-origin: {value};',

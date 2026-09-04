@@ -133,8 +133,6 @@ export function render(s) {
 
   // Powyżej 2× pokazujemy prawdziwe piksele zamiast rozmycia interpolacją.
   dom.img.classList.toggle('crisp', s.view.scale >= 2);
-  // Obrys ghosta rysuje się wewnątrz skalowanej warstwy, więc kompensujemy skalę.
-  dom.ghost.style.setProperty('--ghost-width', `${1 / s.view.scale}px`);
 
   dom.zoomBadge.textContent = `${formatZoom(s.view.scale)} · ${width}×${height}`;
 }

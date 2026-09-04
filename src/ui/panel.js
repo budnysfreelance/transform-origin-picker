@@ -1,5 +1,6 @@
 import { dom } from '../dom.js';
 import { state, set, setPreview, imageSize } from '../state.js';
+import { clamp } from '../coords.js';
 import { formatNumber } from '../format.js';
 import * as actions from '../actions.js';
 import * as picker from '../picker.js';
@@ -69,7 +70,6 @@ export function init() {
 
   dom.snapToggle.addEventListener('change', () => set({ snap: dom.snapToggle.checked }));
   dom.loupeToggle.addEventListener('change', () => set({ loupe: dom.loupeToggle.checked }));
-  dom.ghostToggle.addEventListener('change', () => set({ ghost: dom.ghostToggle.checked }));
   dom.autoCopyToggle.addEventListener('change', () => set({ autoCopy: dom.autoCopyToggle.checked }));
 
   dom.undoBtn.addEventListener('click', actions.undo);
@@ -96,10 +96,22 @@ export function init() {
   });
   dom.previewPlay.addEventListener('click', () => setPreview({ playing: !state.preview.playing }));
   dom.previewStage.addEventListener('click', () => set({ previewInStage: !state.previewInStage }));
-  dom.previewScale.addEventListener('input', () =>
-    setPreview({ scale: Number(dom.previewScale.value) }));
-  dom.previewRotate.addEventListener('input', () =>
-    setPreview({ rotate: Number(dom.previewRotate.value) }));
+
+  // Suwak i pole sterują tą samą wartością. Pole ma szerszy zakres niż suwak,
+  // żeby dało się wpisać skalę spoza wygodnego zakresu przeciągania.
+  bindNumeric(dom.previewScale, dom.previewScaleInput, 0.01, 20, (scale) => setPreview({ scale }));
+  bindNumeric(dom.previewRotate, dom.previewRotateInput, -360, 360, (rotate) => setPreview({ rotate }));
+}
+
+function bindNumeric(slider, input, min, max, apply) {
+  slider.addEventListener('input', () => apply(Number(slider.value)));
+  input.addEventListener('input', () => {
+    const value = parseField(input);
+    if (value !== null) apply(clamp(value, min, max));
+  });
+  // Puste lub niepoprawne pole zostawia poprzednią wartość — uzupełnia się
+  // po opuszczeniu, tak samo jak pola X/Y.
+  input.addEventListener('blur', () => render(state));
 }
 
 export function render(s) {
@@ -131,7 +143,6 @@ export function render(s) {
   dom.precisionBtn.textContent = `.${s.precision}`;
   dom.snapToggle.checked = s.snap;
   dom.loupeToggle.checked = s.loupe;
-  dom.ghostToggle.checked = s.ghost;
   dom.autoCopyToggle.checked = s.autoCopy;
   if (!isEditing(dom.templateInput)) dom.templateInput.value = s.template;
 
@@ -142,8 +153,8 @@ export function render(s) {
   dom.customSliders.hidden = s.preview.preset !== 'custom';
   dom.previewScale.value = String(s.preview.scale);
   dom.previewRotate.value = String(s.preview.rotate);
-  dom.previewScaleValue.textContent = String(s.preview.scale);
-  dom.previewRotateValue.textContent = `${s.preview.rotate}°`;
+  if (!isEditing(dom.previewScaleInput)) dom.previewScaleInput.value = String(s.preview.scale);
+  if (!isEditing(dom.previewRotateInput)) dom.previewRotateInput.value = String(s.preview.rotate);
 
   renderPins(s);
 }

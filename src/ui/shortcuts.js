@@ -114,7 +114,6 @@ function onKeyDown(event) {
   switch (event.key.toLowerCase()) {
     case 'p': setPreview({ playing: !state.preview.playing }); break;
     case 'i': set({ previewInStage: !state.previewInStage }); break;
-    case 'g': set({ ghost: !state.ghost }); break;
     case 's': set({ snap: !state.snap }); break;
     case 'l': set({ loupe: !state.loupe }); break;
     case 'o': imageSource.pickFile(); break;

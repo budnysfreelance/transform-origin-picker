@@ -9,16 +9,33 @@ const STORE = 'session';
 const RECORD_KEY = 'last';
 
 const PERSISTED = [
-  'unit', 'precision', 'step', 'snap', 'loupe', 'ghost',
+  'unit', 'precision', 'step', 'snap', 'loupe',
   'previewInStage', 'autoCopy', 'template', 'preview', 'pins',
 ];
+
+const UNITS = ['pct', 'px'];
+
+/**
+ * Zapis z poprzedniej wersji może zawierać ustawienia, których już nie ma —
+ * np. `unit: 'keyword'` sprzed usunięcia słów kluczowych. Nieznana jednostka
+ * zostawiłaby pusty segment w panelu i nieobsłużoną ścieżkę w eksporcie.
+ */
+export function migrateSettings(settings) {
+  if ('unit' in settings && !UNITS.includes(settings.unit)) {
+    return { ...settings, unit: 'pct' };
+  }
+  return settings;
+}
 
 export function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return Object.fromEntries(PERSISTED.filter((key) => key in parsed).map((key) => [key, parsed[key]]));
+    const known = Object.fromEntries(
+      PERSISTED.filter((key) => key in parsed).map((key) => [key, parsed[key]]),
+    );
+    return migrateSettings(known);
   } catch {
     return {};
   }

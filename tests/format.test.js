@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatNumber, formatOrigin, toKeywords, applyTemplate } from '../src/format.js';
+import { formatNumber, formatOrigin, applyTemplate } from '../src/format.js';
 
 const IMAGE = { width: 1920, height: 1080 };
 
@@ -58,35 +58,6 @@ describe('formatOrigin — piksele', () => {
     const origin = { x: 1 / 3, y: 0 };
     expect(formatOrigin(origin, IMAGE, { unit: 'px', precision: 0 }).x).toBe('640px');
     expect(formatOrigin({ x: 0.1234, y: 0 }, IMAGE, { unit: 'px', precision: 2 }).x).toBe('236.93px');
-  });
-});
-
-describe('toKeywords', () => {
-  it('mapuje tylko dokładne trafienia w 9 węzłów', () => {
-    expect(toKeywords({ x: 0, y: 0 }).value).toBe('left top');
-    expect(toKeywords({ x: 1, y: 1 }).value).toBe('right bottom');
-    expect(toKeywords({ x: 0.5, y: 0 }).value).toBe('center top');
-  });
-
-  it('skraca środek do "center"', () => {
-    expect(toKeywords({ x: 0.5, y: 0.5 }).value).toBe('center');
-  });
-
-  it('zwraca null poza węzłami', () => {
-    expect(toKeywords({ x: 0.51, y: 0.5 })).toBeNull();
-    expect(toKeywords({ x: 0.5, y: 0.333 })).toBeNull();
-  });
-});
-
-describe('formatOrigin — keywordy', () => {
-  it('używa keywordów gdy pasują', () => {
-    expect(formatOrigin({ x: 0, y: 0.5 }, IMAGE, { unit: 'keyword' }).value).toBe('left center');
-  });
-
-  it('spada do procentów, gdy punkt nie leży na węźle', () => {
-    const result = formatOrigin({ x: 0.42, y: 0.5 }, IMAGE, { unit: 'keyword' });
-    expect(result.unit).toBe('pct');
-    expect(result.value).toBe('42% 50%');
   });
 });
 
