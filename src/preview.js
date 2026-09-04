@@ -93,8 +93,10 @@ function stop() {
 }
 
 /** Dopasowuje ramkę podglądu do proporcji obrazu — inaczej `transform-origin`
- *  w procentach odnosiłby się do pudełka, a nie do widocznego obrazka. */
-function layoutFrame(s) {
+ *  w procentach odnosiłby się do pudełka, a nie do widocznego obrazka.
+ *  Czyta clientWidth, więc wywołujemy to tylko przy zmianie obrazka albo
+ *  rozmiaru okna — nie w każdej klatce przeciągania. */
+function layoutFrame() {
   const size = imageSize();
   const available = Math.max(80, dom.previewTile.clientWidth - 28);
   const scale = Math.min(available / size.width, 190 / size.height);
@@ -110,17 +112,23 @@ export function init() {
     state.preview.preset = 'custom';
   }
   window.addEventListener('resize', () => {
-    if (state.image) layoutFrame(state);
+    if (state.image) layoutFrame();
   });
 }
+
+let laidOutFor = null;
 
 export function render(s) {
   if (!s.image) {
     stop();
+    laidOutFor = null;
     return;
   }
 
-  layoutFrame(s);
+  if (laidOutFor !== s.image) {
+    layoutFrame();
+    laidOutFor = s.image;
+  }
 
   const origin = originCss(s.origin);
   dom.previewImg.style.transformOrigin = origin;

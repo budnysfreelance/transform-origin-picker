@@ -17,6 +17,15 @@ export function stageSize() {
   return { width: rect.width, height: rect.height };
 }
 
+/**
+ * Rozmiar sceny bez wymuszania przeliczenia layoutu — aktualizowany przez
+ * ResizeObserver. Używany w renderze, który podczas przeciągania leci
+ * kilkadziesiąt razy na sekundę i nie może przeplatać zapisów z odczytami.
+ */
+export function cachedStageSize() {
+  return lastStageSize ?? stageSize();
+}
+
 /** Punkt zdarzenia we współrzędnych sceny. */
 export function stagePoint(event) {
   const rect = dom.stage.getBoundingClientRect();

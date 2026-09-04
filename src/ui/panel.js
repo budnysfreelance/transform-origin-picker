@@ -36,6 +36,9 @@ export function init() {
   for (const input of [dom.xInput, dom.yInput]) {
     input.addEventListener('input', () => commitFields({ tag: 'field' }));
     input.addEventListener('change', () => commitFields({ tag: null }));
+    // Render nie nadpisuje pola w trakcie edycji, więc po opuszczeniu
+    // pustego/niepoprawnego pola trzeba wpisać do niego aktualną wartość.
+    input.addEventListener('blur', () => render(state));
   }
 
   dom.unitToggle.addEventListener('click', (event) => {

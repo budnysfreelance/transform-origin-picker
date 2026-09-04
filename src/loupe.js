@@ -6,6 +6,7 @@
 import { dom } from './dom.js';
 import { imageSize } from './state.js';
 import { imageToScreen, toPixels } from './coords.js';
+import { cachedStageSize } from './viewport.js';
 
 const SIZE = 150;      // px na ekranie
 const ZOOM = 8;        // ile pikseli ekranu na piksel obrazu
@@ -25,7 +26,7 @@ export function render(s) {
 /** Przerzuca lupę na drugą stronę, gdy marker wszedłby pod nią. */
 function park(s, center) {
   const marker = imageToScreen(center, s.view);
-  const stageWidth = dom.stage.clientWidth;
+  const stageWidth = cachedStageSize().width;
   const nearTop = marker.y < SIZE + MARGIN * 2;
   const nearRight = marker.x > stageWidth - SIZE - MARGIN * 2;
 

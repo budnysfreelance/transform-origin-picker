@@ -32,6 +32,7 @@ export function toggleHelp(open) {
 }
 
 function onKeyDown(event) {
+  if (!event.key) return;   // niektóre zdarzenia (np. autouzupełnianie) nie mają key
   const mod = event.metaKey || event.ctrlKey;
 
   if (event.key === 'Escape') {
