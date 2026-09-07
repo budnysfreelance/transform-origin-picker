@@ -35,7 +35,12 @@ export function stagePoint(event) {
 
 export function fit() {
   if (!state.image) return;
-  set({ view: fitView(imageSize(), stageSize(), 32) });
+  const size = stageSize();
+  set({ view: fitView(imageSize(), size, 32) });
+  // Scena mogła dopiero co przejść z `hidden` (0×0) do realnego rozmiaru —
+  // zapamiętujemy go od razu, żeby spóźniony callback ResizeObserver (patrz
+  // onStageResize) nie doliczył tej różnicy do dopiero co wyśrodkowanego widoku.
+  lastStageSize = size;
 }
 
 export function setScale(nextScale, anchor) {
