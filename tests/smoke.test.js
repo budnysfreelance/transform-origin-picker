@@ -69,6 +69,7 @@ describe('akcje na punkcie', () => {
   it('seria nudge’ów to jeden krok cofnięcia, a nie dziesięć', () => {
     // Bez sklejania Cmd+Z po dociskaniu strzałkami cofałby po 0.1 px.
     state.image = { width: 1000, height: 1000, el: null, name: 't', blob: null };
+    state.unit = 'px';
     actions.commitOrigin({ x: 0.5, y: 0.5 });
     actions.resetHistory(state.origin);
     for (let i = 0; i < 10; i++) actions.nudge(1, 0, 1);
@@ -77,6 +78,7 @@ describe('akcje na punkcie', () => {
     actions.undo();
     expect(state.origin).toEqual({ x: 0.5, y: 0.5 });
     state.image = null;
+    state.unit = 'pct';
   });
 });
 

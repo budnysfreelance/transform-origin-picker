@@ -87,14 +87,6 @@ export function init() {
 
   dom.templateInput.addEventListener('input', () => set({ template: dom.templateInput.value }));
 
-  dom.pins.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-pin]');
-    if (!button) return;
-    const index = Number(button.dataset.pin);
-    if (event.shiftKey) actions.savePin(index);
-    else actions.jumpToPin(index);
-  });
-
   // --- podgląd ---
   dom.presetRow.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-preset]');
@@ -140,12 +132,17 @@ export function render(s) {
   setActive(dom.stepToggle, 'step', String(s.step));
   setActive(dom.presetRow, 'preset', s.preview.preset);
 
+  const stepUnit = s.unit === 'px' ? 'px' : '%';
+  for (const button of dom.stepToggle.children) {
+    button.textContent = `${pl(button.dataset.step)}${stepUnit}`;
+  }
+
   for (const button of dom.grid9.children) {
     const matches = Number(button.dataset.x) === s.origin.x && Number(button.dataset.y) === s.origin.y;
     button.classList.toggle('active', matches);
   }
 
-  dom.stepLabel.textContent = `${pl(s.step)}px`;
+  dom.stepLabel.textContent = `${pl(s.step)}${stepUnit}`;
   dom.precisionBtn.textContent = `.${s.precision}`;
   dom.snapToggle.checked = s.snap;
   dom.loupeToggle.checked = s.loupe;
@@ -161,8 +158,6 @@ export function render(s) {
   dom.previewRotate.value = String(s.preview.rotate);
   if (!isEditing(dom.previewScaleInput)) dom.previewScaleInput.value = pl(s.preview.scale);
   if (!isEditing(dom.previewRotateInput)) dom.previewRotateInput.value = `${pl(s.preview.rotate)}°`;
-
-  renderPins(s);
 }
 
 /** Rozbija deklarację na właściwość / interpunkcję / wartość. Szablon jest
@@ -197,15 +192,5 @@ function piece(className, text) {
 function setActive(container, key, value) {
   for (const button of container.querySelectorAll(`button[data-${key}]`)) {
     button.classList.toggle('active', button.dataset[key] === value);
-  }
-}
-
-function renderPins(s) {
-  for (const button of dom.pins.children) {
-    const pin = s.pins[Number(button.dataset.pin)];
-    button.classList.toggle('set', Boolean(pin));
-    button.querySelector('span').textContent = pin
-      ? `${formatNumber(pin.x * 100, 0)}/${formatNumber(pin.y * 100, 0)}`
-      : 'puste';
   }
 }

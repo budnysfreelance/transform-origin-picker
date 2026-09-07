@@ -35,12 +35,15 @@ export function commitOrigin(origin, { tag = null } = {}) {
   if (state.autoCopy) copyCss({ silent: true });
 }
 
-export function nudge(dx, dy, stepPixels) {
+export function nudge(dx, dy, step) {
   const size = imageSize();
+  const [deltaX, deltaY] = state.unit === 'px'
+    ? [step / size.width, step / size.height]
+    : [step / 100, step / 100];
   commitOrigin(
     {
-      x: state.origin.x + (dx * stepPixels) / size.width,
-      y: state.origin.y + (dy * stepPixels) / size.height,
+      x: state.origin.x + dx * deltaX,
+      y: state.origin.y + dy * deltaY,
     },
     { tag: 'nudge' },
   );
@@ -98,23 +101,4 @@ export async function copyCss({ silent = false } = {}) {
 export async function copyValue() {
   const copied = await copyText(currentFormatted().value);
   toast(copied ? 'Skopiowano wartość' : 'Nie udało się skopiować');
-}
-
-// --- przypięte punkty -------------------------------------------------
-
-export function savePin(index) {
-  const pins = [...state.pins];
-  pins[index] = { ...state.origin };
-  set({ pins });
-  toast(`Przypięto ${'ABC'[index]}`);
-}
-
-export function jumpToPin(index) {
-  const pin = state.pins[index];
-  if (!pin) {
-    savePin(index);
-    return;
-  }
-  commitOrigin(pin, { tag: `pin-${index}` });
-  toast(`Punkt ${'ABC'[index]}`);
 }

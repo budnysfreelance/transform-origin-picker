@@ -10,7 +10,7 @@ const RECORD_KEY = 'last';
 
 const PERSISTED = [
   'unit', 'precision', 'step', 'snap', 'loupe',
-  'previewInStage', 'autoCopy', 'template', 'preview', 'pins',
+  'previewInStage', 'autoCopy', 'template', 'preview',
 ];
 
 const UNITS = ['pct', 'px'];

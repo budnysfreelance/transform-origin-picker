@@ -82,8 +82,8 @@ function onKeyDown(event) {
 
   if (event.key in ARROWS) {
     event.preventDefault();
-    // ⇧ = grubszy krok, ⌥ = sub-pixel. Krok jest w pikselach obrazu,
-    // więc precyzja nie zależy od aktualnego zoomu.
+    // ⇧ = grubszy krok, ⌥ = drobny. Krok jest liczony w jednostce obrazu
+    // (px albo %, zależnie od wybranej), więc precyzja nie zależy od zoomu.
     const step = event.shiftKey ? state.step * 10 : event.altKey ? 0.1 : state.step;
     const [dx, dy] = ARROWS[event.key];
     picker.clearSnapIndicator();
@@ -102,14 +102,6 @@ function onKeyDown(event) {
 
   if (['+', '='].includes(event.key)) { viewport.zoomBy(1.25); return; }
   if (['-', '_'].includes(event.key)) { viewport.zoomBy(1 / 1.25); return; }
-
-  const pinIndex = ['a', 'b', 'c'].indexOf(event.key.toLowerCase());
-  if (pinIndex !== -1) {
-    picker.clearSnapIndicator();
-    if (event.shiftKey) actions.savePin(pinIndex);
-    else actions.jumpToPin(pinIndex);
-    return;
-  }
 
   switch (event.key.toLowerCase()) {
     case 'p': setPreview({ playing: !state.preview.playing }); break;

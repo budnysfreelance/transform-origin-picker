@@ -56,7 +56,6 @@ export const dom = {
   autoCopyToggle: byId('autoCopyToggle'),
   templateInput: byId('templateInput'),
 
-  pins: byId('pins'),
   resetBtn: byId('resetBtn'),
   toast: byId('toast'),
 };

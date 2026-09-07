@@ -20,28 +20,27 @@ więc pętla znika.
   w warstwie ekranowej, więc linia jest zawsze tak samo cienka niezależnie od zoomu
   i podąża za zdjęciem także w trakcie animacji.
 - **Precyzja co do piksela** — zoom do 64×, lupa z siatką pikseli, krok strzałkami
-  liczony w pikselach źródła (a nie w procentach), sub-pixel na `⌥`.
+  liczony w wybranej jednostce (px albo %), sub-pixel na `⌥`.
 - **Przyciąganie** do rogów, środków krawędzi, ćwiartek i tercji — z podświetleniem osi,
   która złapała, i chwilowym wyłączeniem na `⌥`.
 - **Szybkie wejście** — drag & drop w dowolne miejsce okna, `⌘V` ze schowka,
   presety 9 punktów pod klawiszami `1`–`9`.
 - **Eksport** — `%` albo `px`, precyzja 0–2 miejsc, własny szablon
   (np. `origin-[{x}_{y}]` dla Tailwinda), auto-kopiowanie przy każdej zmianie.
-- **Historia i sesja** — `⌘Z`/`⌘⇧Z`, trzy przypięte punkty A/B/C do porównywania
-  kandydatów, powrót do ostatniego obrazka po odświeżeniu strony.
+- **Historia i sesja** — `⌘Z`/`⌘⇧Z`, powrót do ostatniego obrazka po odświeżeniu strony.
 
 ## Skróty klawiszowe
 
 | Klawisz | Akcja | | Klawisz | Akcja |
 |---|---|---|---|---|
 | klik / przeciągnij | ustaw punkt | | kółko myszy | zoom do kursora |
-| strzałki | krok o 1 px obrazu | | spacja + przeciągnij | przesuń widok |
+| strzałki | krok o 1 (px albo %, wg jednostki) | | spacja + przeciągnij | przesuń widok |
 | `⇧` + strzałki | ×10 | | `⌘0` / `⌘9` | dopasuj / 100 % |
-| `⌥` + strzałki | 0.1 px | | `+` / `−` | przybliż / oddal |
+| `⌥` + strzałki | 0,1 (sub-pixel) | | `+` / `−` | przybliż / oddal |
 | `1`–`9` | presety siatki (układ numpada) | | `P` · `I` | podgląd · animacja w scenie |
-| `A` / `B` / `C` | skok do przypiętego punktu | | `S` · `L` | przyciąganie · lupa |
-| `⇧` + `A`/`B`/`C` | przypnij bieżący punkt | | `⌘C` · `⌘V` | kopiuj CSS · wklej obrazek |
-| `⌘Z` · `⌘⇧Z` | cofnij · ponów | | `O` · `Esc` · `?` | otwórz · nowy · pomoc |
+| `⌘Z` · `⌘⇧Z` | cofnij · ponów | | `S` · `L` | przyciąganie · lupa |
+| | | | `⌘C` · `⌘V` | kopiuj CSS · wklej obrazek |
+| | | | `O` · `Esc` · `?` | otwórz · nowy · pomoc |
 
 Na Windowsie/Linuksie `⌘` to `Ctrl`, a `⌥` to `Alt`.
 

@@ -28,9 +28,6 @@ export const state = {
     duration: 2400,
   },
 
-  /** @type {Array<{x:number,y:number}|null>} sloty A/B/C do porównywania kandydatów */
-  pins: [null, null, null],
-
   helpOpen: false,
 };
 

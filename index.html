@@ -160,7 +160,7 @@
           </div>
         </div>
 
-        <div class="seg" id="stepToggle" role="group" aria-label="Krok w pikselach obrazu">
+        <div class="seg" id="stepToggle" role="group" aria-label="Krok przesunięcia">
           <button type="button" data-step="0.1">0,1px</button>
           <button type="button" data-step="1" class="active">1px</button>
           <button type="button" data-step="10">10px</button>
@@ -208,19 +208,6 @@
         </details>
       </section>
 
-      <section class="block">
-        <div class="block-head">
-          <h2>Przypięte</h2>
-          <span class="rule"></span>
-        </div>
-        <div class="pins" id="pins" role="group" aria-label="Przypięte punkty">
-          <button type="button" class="surface-card" data-pin="0"><b>A</b><span>puste</span></button>
-          <button type="button" class="surface-card" data-pin="1"><b>B</b><span>puste</span></button>
-          <button type="button" class="surface-card" data-pin="2"><b>C</b><span>puste</span></button>
-        </div>
-        <p class="hint"><kbd>A</kbd>/<kbd>B</kbd>/<kbd>C</kbd> skacze do punktu, <kbd>⇧</kbd>+klawisz zapisuje bieżący.</p>
-      </section>
-
       <button type="button" class="btn btn-secondary btn-block" id="resetBtn">Nowy obrazek <kbd>Esc</kbd></button>
     </div>
   </aside>
@@ -235,12 +222,10 @@
     <div class="help-cols">
       <dl>
         <dt>klik / przeciągnij</dt><dd>ustaw punkt</dd>
-        <dt>strzałki</dt><dd>krok o 1 px obrazu</dd>
+        <dt>strzałki</dt><dd>krok o 1 (px albo %, wg jednostki)</dd>
         <dt>⇧ + strzałki</dt><dd>×10</dd>
-        <dt>⌥ + strzałki</dt><dd>0,1 px (sub-pixel)</dd>
+        <dt>⌥ + strzałki</dt><dd>0,1 (sub-pixel)</dd>
         <dt>1 – 9</dt><dd>presety siatki (układ numpada)</dd>
-        <dt>A / B / C</dt><dd>skok do przypiętego punktu</dd>
-        <dt>⇧ + A / B / C</dt><dd>przypnij bieżący punkt</dd>
       </dl>
       <dl>
         <dt>kółko myszy</dt><dd>zoom do kursora</dd>
